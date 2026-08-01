@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Einkaufskalkulator – FOB Container (Mischcontainer)</title>
+<style>
+  :root{
+    --primary:#1f4e78;
+    --primary-light:#2e75b6;
+    --accent:#548235;
+    --bg:#f4f6f9;
+    --card:#ffffff;
+    --border:#dbe2ea;
+    --text:#1a1f2b;
+    --muted:#6b7280;
+    --input-bg:#fffbe0;
+    --warn:#b45309;
+    --warn-bg:#fef3c7;
+    --info-bg:#eaf2fb;
+    --info:#1f4e78;
+    --ok:#166534;
+    --ok-bg:#dcfce7;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  header{
+    background:var(--primary);
+    color:#fff;
+    padding:18px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+  }
+  header h1{
+    margin:0 0 4px 0;
+    font-size:20px;
+  }
+  header p{
+    margin:0;
+    font-size:13px;
+    opacity:.85;
+  }
+  header .logo-box{
+    flex:0 0 auto;
+    background:#fff;
+    border-radius:8px;
+    padding:8px 14px;
+    display:flex;
+    align-items:center;
+  }
+  header .logo-box img{
+    height:42px;
+    width:auto;
+    display:block;
+  }
+  nav{
+    display:flex;
+    background:var(--primary-light);
+    flex-wrap:wrap;
+  }
+  nav button{
+    background:none;
+    border:none;
+    color:#fff;
+    padding:12px 18px;
+    font-size:13.5px;
+    cursor:pointer;
+    opacity:.8;
+    border-bottom:3px solid transparent;
+    white-space:nowrap;
+  }
+  nav button.active{
+    opacity:1;
+    border-bottom:3px solid #fff;
+    font-weight:bold;
+  }
+  main{
+    max-width:1260px;
+    margin:24px auto;
+    padding:0 20px 60px 20px;
+  }
+  .tab{display:none;}
+  .tab.active{display:block;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:20px 24px;
+    margin-bottom:20px;
+  }
+  .card h2{
+    margin-top:0;
+    font-size:16px;
+    color:var(--primary);
+    border-bottom:1px solid var(--border);
+    padding-bottom:8px;
+  }
+  .card h3{
+    font-size:13.5px;
+    color:var(--primary);
+    margin:18px 0 4px 0;
+  }
+  .note{
+    font-size:12.5px;
+    color:var(--muted);
+    line-height:1.5;
+  }
+  .warn-box{
+    background:var(--warn-bg);
+    color:var(--warn);
+    border:1px solid #fcd34d;
+    border-radius:6px;
+    padding:10px 14px;
+    font-size:12.5px;
+    margin-bottom:14px;
+    line-height:1.5;
+  }
+  .info-box{
+    background:var(--info-bg);
+    color:var(--info);
+    border:1px solid #bcd6ef;
+    border-radius:6px;
+    padding:10px 14px;
+    font-size:12.5px;
+    margin-bottom:14px;
+    line-height:1.5;
+  }
+  label{
+    display:block;
+    font-size:12.5px;
+    color:var(--muted);
+    margin-bottom:4px;
+    margin-top:12px;
+  }
+  input[type=text], input[type=number], input[type=date], select, textarea{
+    width:100%;
+    padding:8px 10px;
+    border:1px solid var(--border);
+    border-radius:5px;
+    font-size:14px;
+    font-family:inherit;
+    background:var(--input-bg);
+  }
+  textarea{ resize:vertical; }
+  pre.code-block{
+    background:#f4f6f9;
+    border:1px solid var(--border);
+    border-radius:5px;
+    padding:10px 12px;
+    font-size:11.5px;
+    overflow-x:auto;
+    line-height:1.5;
+  }
+  .form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0 24px;
+  }
+  .btn{
+    background:var(--primary-light);
+    color:#fff;
+    border:none;
+    padding:9px 16px;
+    border-radius:5px;
+    font-size:13px;
+    cursor:pointer;
+    margin-top:14px;
+  }
+  .btn:hover{background:var(--primary);}
+  .btn.secondary{
+    background:#fff;
+    color:var(--primary-light);
+    border:1px solid var(--primary-light);
+  }
+  .btn.danger{
+    background:#fff;
+    color:#b91c1c;
+    border:1px solid #fca5a5;
+    padding:5px 10px;
+    font-size:12px;
+    margin-top:0;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12.5px;
+    margin-top:10px;
+  }
+  th, td{
+    border:1px solid var(--border);
+    padding:6px 8px;
+    text-align:left;
+  }
+  th{
+    background:#eef2f7;
+    color:var(--primary);
+    font-size:11.5px;
+  }
+  td input, td select{
+    background:var(--input-bg);
+    padding:5px 6px;
+    font-size:12px;
+  }
+  tr.group-row td{
+    background:#dfe7f0;
+    font-weight:bold;
+    color:var(--primary);
+  }
+  tr.total-row td{
+    background:#eef2f7;
+    font-weight:bold;
+  }
+  .darkgreen-cell{
+    background:#14532d;
+    color:#fff;
+    font-weight:bold;
+    border-radius:4px;
+    padding:4px 6px;
+    display:inline-block;
+  }
+  th.darkgreen-head{
+    background:#14532d;
+    color:#fff;
+  }
+  .result-line{
+    display:flex;
+    justify-content:space-between;
+    padding:7px 4px;
+    border-bottom:1px dashed var(--border);
+    font-size:14px;
+  }
+  .result-line.bold{font-weight:bold;}
+  .result-line .val{font-variant-numeric:tabular-nums;}
+  .result-final{
+    margin-top:16px;
+    background:var(--accent);
+    color:#fff;
+    padding:16px 20px;
+    border-radius:8px;
+    font-size:16px;
+    font-weight:bold;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .result-final small{
+    display:block;
+    font-weight:normal;
+    font-size:12px;
+    opacity:.85;
+    margin-top:3px;
+  }
+  .row-actions{text-align:center; width:36px;}
+  .charge-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 4px;
+    border-bottom:1px solid var(--border);
+    font-size:13px;
+  }
+  .charge-row .chk{flex:0 0 20px;}
+  .charge-row .chk input{width:18px; height:18px;}
+  .charge-row .name{flex:1;}
+  .charge-row .amount{flex:0 0 110px;}
+  .charge-row .amount input{background:var(--input-bg);}
+  .charge-row .unit{flex:0 0 230px; color:var(--muted); font-size:11.5px;}
+  .util-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:14px;
+  }
+  .util-row label{
+    flex:0 0 140px;
+    margin:0;
+    font-size:13px;
+    color:var(--text);
+    font-weight:bold;
+  }
+  .util-bar{
+    flex:1;
+    height:18px;
+    background:#e5e9ef;
+    border-radius:9px;
+    overflow:hidden;
+    position:relative;
+  }
+  .util-fill{
+    height:100%;
+    background:var(--accent);
+    width:0%;
+    transition:width .2s;
+  }
+  .util-fill.over{ background:#b91c1c; }
+  .util-fill.warn{ background:#d97706; }
+  .util-text{
+    flex:0 0 190px;
+    font-size:12.5px;
+    text-align:right;
+    font-variant-numeric:tabular-nums;
+  }
+  footer{
+    text-align:center;
+    font-size:11.5px;
+    color:var(--muted);
+    padding:20px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Einkaufskalkulator – FOB Container (Mischcontainer, mehrere Artikel)</h1>
+    <p>Fernost / USA → Zentrallager Bergheim bei Salzburg · Kalkulation in EUR · Konditionen Interfracht/Rhenus (IHG, gültig 01.03.2026–28.02.2027)</p>
+  </div>
+  <div class="logo-box">
+    <img src="https://cdn.brandfetch.io/idExSrrpvF/w/180/h/180/theme/dark/logo.png?c=1bxid64Mup7aczewSAYMX&t=1780553013711"
+         alt="Salzburger Lagerhaus"
+         onerror="this.parentElement.style.display='none'">
+  </div>
+</header>
+
+<nav>
+  <button class="tab-btn active" data-tab="wechselkurs">Wechselkurs</button>
+  <button class="tab-btn" data-tab="container">Containergrößen</button>
+  <button class="tab-btn" data-tab="seefracht">Seefracht</button>
+  <button class="tab-btn" data-tab="nachlauf">Nachlauf</button>
+  <button class="tab-btn" data-tab="nebenkosten">Nebenkosten</button>
+  <button class="tab-btn" data-tab="referenz">Referenz</button>
+  <button class="tab-btn" data-tab="kalkulation">Kalkulation</button>
+  <button class="tab-btn" data-tab="cloudsync">Cloud-Sync</button>
+</nav>
+
+<main>
+
+  <!-- WECHSELKURS -->
+  <div class="tab active" id="tab-wechselkurs">
+    <div class="card">
+      <h2>Wechselkurs USD / EUR</h2>
+      <p class="note">Alle Kalkulationen greifen auf diesen einen Kurs zu. Aktualisierung wirkt sich automatisch überall aus.</p>
+      <label>Aktueller Kurs (1 EUR = ... USD)</label>
+      <input type="number" step="0.0001" id="kurs" value="1.1476">
+      <label>Stand</label>
+      <input type="date" id="kursDatum" value="2026-07-30">
+      <label>Quelle</label>
+      <input type="text" id="kursQuelle" value="EZB Referenzkurs (manuell eingetragen)">
+      <button class="btn" id="btnFetchRate">Aktuellen Kurs online abrufen</button>
+      <button class="btn secondary" id="btnSaveRate">Speichern</button>
+      <p class="note" style="margin-top:14px;">
+        Der Online-Abruf nutzt einen freien Wechselkurs-Dienst. Falls der Browser den Abruf blockiert
+        (z. B. keine Internetverbindung oder lokale Sicherheitsrichtlinien), bitte den Kurs manuell von der
+        EZB-Seite eintragen: ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates
+      </p>
+    </div>
+  </div>
+
+  <!-- CONTAINERGRÖSSEN -->
+  <div class="tab" id="tab-container">
+    <div class="card">
+      <h2>Containergrößen (Stammdaten)</h2>
+      <p class="note">Richtwerte nach ISO-Containernormen – bei Bedarf anpassen. Volumen und Max. Zuladung werden in der Kalkulation zur Prüfung der Container-Auslastung verwendet.</p>
+      <table id="containerTable">
+        <thead>
+          <tr>
+            <th>Containertyp</th><th>Länge (m)</th><th>Breite (m)</th><th>Höhe (m)</th>
+            <th>Volumen (m³)</th><th>Max. Zuladung (kg)</th><th>Bemerkung</th><th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button class="btn" id="btnAddContainer">+ Containertyp hinzufügen</button>
+    </div>
+  </div>
+
+  <!-- SEEFRACHT -->
+  <div class="tab" id="tab-seefracht">
+    <div class="card">
+      <h2>Seefracht – Interfracht/Rhenus Konditionen</h2>
+      <div class="info-box">
+        Quelle: IHG_Raiffeisen_Salzburg_2026.xlsx, Blatt "2. Oceanfreight FCL". Raten "all in" (inkl. BAF, CAF, LSS,
+        Suez Canal Transit Surcharge, ENS, Origin Fee, PSS, TDS, E.R.R., Heavy Lift Surcharge, Vietnam Port
+        Congestion Surcharge, ETS China-Shipments) in USD, ab FOB bis CFR Empfangshafen (Northports: Antwerpen /
+        Rotterdam / Bremerhaven / Hamburg). Nur gültig für FOB-Verschiffungen. BAF wird quartalsweise angepasst
+        (nächste Anpassung 01.07.2026). Vertragsperiode 01.03.2026–28.02.2027, Kontraktvolumen 4.500 TEU
+        (anteilig 150 TEU), Incentive ab 90 % Erfüllungsgrad.
+      </div>
+      <div style="overflow-x:auto;">
+      <table id="seefrachtTable">
+        <thead>
+          <tr>
+            <th>Ursprungsland</th><th>Ursprungshafen</th>
+            <th>20' DC (USD)</th><th>40' DC (USD)</th><th>40' HC (USD)</th>
+            <th>Transitzeit</th><th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      </div>
+      <button class="btn" id="btnAddSeefracht">+ Hafen hinzufügen</button>
+    </div>
+  </div>
+
+  <!-- NACHLAUF -->
+  <div class="tab" id="tab-nachlauf">
+    <div class="card">
+      <h2>Nachlauf – Interfracht/Rhenus Konditionen</h2>
+      <div class="info-box">
+        Quelle: Blatt "4. Onforwarding FCL". Preise in EUR, Bahn (Rail) bzw. LKW (Truck) je nach Zielort/Ankunftshafen.
+        Für Bergheim ist ausschließlich Bahn hinterlegt. Vertragsperiode wie Seefracht.
+      </div>
+      <div style="overflow-x:auto;">
+      <table id="nachlaufTable">
+        <thead>
+          <tr>
+            <th>Zielort</th><th>Ankunftshafen</th>
+            <th>Bahn 20' (EUR)</th><th>Bahn 40' (EUR)</th><th>Bahn 40' HC (EUR)</th>
+            <th>LKW 20' DC (EUR)</th><th>LKW 40' HC (EUR)</th><th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      </div>
+      <button class="btn" id="btnAddNachlauf">+ Zeile hinzufügen</button>
+      <p class="note" style="margin-top:10px;">Leer lassen bzw. 0 = "n/a" (keine Kondition hinterlegt).</p>
+    </div>
+  </div>
+
+  <!-- NEBENKOSTEN -->
+  <div class="tab" id="tab-nebenkosten">
+    <div class="card">
+      <h2>Nebenkosten je Container</h2>
+      <div class="info-box">
+        Quelle: Blatt "7. Side Charges Countries_FCL". Nur angehakte Posten fließen in die Kalkulation ein –
+        situative Posten (Vet-Check, Zollbeschau) je nach Warenart aktivieren. Diese Kosten gelten für den
+        gesamten Container und werden auf die Artikel anteilig nach Volumen verteilt.
+      </div>
+      <div id="nebenkostenList"></div>
+      <button class="btn" id="btnAddNebenkosten">+ Position hinzufügen</button>
+    </div>
+  </div>
+
+  <!-- REFERENZ -->
+  <div class="tab" id="tab-referenz">
+    <div class="card">
+      <h2>Referenz: Demurrage / Detention Tariff (IHG)</h2>
+      <p class="note">Informativ – nicht Teil der automatischen Stückkosten-Kalkulation. Fällt nur an, wenn Freizeiten überschritten werden.</p>
+      <h3>Demurrage 20' DV (Standardausrüstung)</h3>
+      <table>
+        <thead><tr><th>Hafen</th><th>Freitage</th><th>Staffelpreis</th></tr></thead>
+        <tbody>
+          <tr><td>Rotterdam</td><td>6</td><td>70,00 € Tag 7–8; 100,00 € Tag 9–13; danach 180,00 €</td></tr>
+          <tr><td>Hamburg</td><td>5</td><td>80,00 € Tag 6–9; 120,00 € Tag 10–14; danach 190,00 €</td></tr>
+          <tr><td>Wilhelmshaven</td><td>6</td><td>80,00 € Tag 7–9; 120,00 € Tag 10–12; danach 190,00 €</td></tr>
+        </tbody>
+      </table>
+      <h3>Demurrage 40' DV/HC (Standardausrüstung)</h3>
+      <table>
+        <thead><tr><th>Hafen</th><th>Freitage</th><th>Staffelpreis</th></tr></thead>
+        <tbody>
+          <tr><td>Rotterdam</td><td>6</td><td>90,00 € Tag 7–8; 150,00 € Tag 9–13; danach 210,00 €</td></tr>
+          <tr><td>Hamburg</td><td>5</td><td>120,00 € Tag 6–9; 190,00 € Tag 10–14; danach 240,00 €</td></tr>
+          <tr><td>Wilhelmshaven</td><td>6</td><td>120,00 € Tag 7–9; 190,00 € Tag 10–12; danach 240,00 €</td></tr>
+        </tbody>
+      </table>
+      <h3>Detention (Standardausrüstung, Deutschland)</h3>
+      <table>
+        <thead><tr><th>Größe</th><th>Freitage</th><th>Staffelpreis</th></tr></thead>
+        <tbody>
+          <tr><td>20' DV</td><td>5</td><td>45,00 € Tag 6–8; danach 70,00 €</td></tr>
+          <tr><td>40' DV/HC</td><td>5</td><td>55,00 € Tag 6–8; danach 85,00 €</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Demurrage beginnt ab Ankunft des Schiffs (ATA), Detention ab Übernahme im Hafen. Gilt nicht für Gefahrgut. Nur gültig FOB-Incoterm.</p>
+    </div>
+
+    <div class="card">
+      <h2>Referenz: Gefahrgut-Zuschläge (Surcharge Dangerous Goods)</h2>
+      <p class="note">Informativ – nur bei Gefahrgutsendungen relevant, nicht Teil der Standardkalkulation.</p>
+      <table>
+        <thead><tr><th>Klasse</th><th>20' DV (USD)</th><th>40' DV/HC (USD)</th><th>Beschreibung</th></tr></thead>
+        <tbody>
+          <tr><td>8</td><td>210</td><td>310</td><td>ätzend / korrosiv</td></tr>
+          <tr><td>3</td><td>350</td><td>500</td><td>leicht entflammbar</td></tr>
+          <tr><td>9</td><td>210</td><td>310</td><td>Batterien</td></tr>
+          <tr><td>2.1</td><td>750</td><td>1500</td><td>Feuerzeuge</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Für Gefahrgut gelten zusätzlich eigene Demurrage-Staffeln (siehe Originaldatei, Blatt 5).</p>
+    </div>
+  </div>
+
+  <!-- KALKULATION -->
+  <div class="tab" id="tab-kalkulation">
+
+    <div class="card">
+      <h2>Container-Einstellungen</h2>
+      <div class="form-grid">
+        <div>
+          <label>Ursprungsland</label>
+          <select id="k_land"></select>
+          <label>Ursprungshafen</label>
+          <select id="k_hafen"></select>
+          <label>Containergröße</label>
+          <select id="k_groesse"></select>
+        </div>
+        <div>
+          <label>Zielort (Nachlauf)</label>
+          <select id="k_zielort"></select>
+          <label>Ankunftshafen Europa</label>
+          <select id="k_ankunftshafen"></select>
+          <label>Zollsatz (%, einheitlich für den gesamten Container)</label>
+          <input type="number" step="0.01" id="k_zoll" value="2">
+          <label>Versicherungssatz (% vom Warenwert, je Artikel)</label>
+          <input type="number" step="0.01" id="k_versicherung" value="0.5">
+          <label>Gebühr IC-China Office (% vom Warenwert, je Artikel)</label>
+          <input type="number" step="0.01" id="k_icchina" value="4">
+          <label>Zentrallager Kosten (% von Gesamt (EUR) je Artikel)</label>
+          <input type="number" step="0.01" id="k_zentrallager" value="10">
+          <label>Sonstige Kosten – gesamter Container (EUR)</label>
+          <input type="number" step="0.01" id="k_sonstige" value="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Artikel im Container</h2>
+      <p class="note">
+        Beliebig viele Artikel hinzufügen (Mischcontainer). Seefracht, Nachlauf, Nebenkosten und sonstige
+        Container-Kosten werden automatisch anteilig nach Volumenanteil auf die Artikel verteilt. Der Zollsatz
+        gilt einheitlich für den gesamten Container (siehe Container-Einstellungen).
+      </p>
+      <div style="overflow-x:auto;">
+      <table id="artikelTable">
+        <thead>
+          <tr>
+            <th>Artikel</th><th>FOB-Preis/Stk (USD)</th><th>Menge (Stk)</th>
+            <th>Volumen/Stk (m³)</th><th>Gewicht/Stk (kg)</th>
+            <th>Gesamtvolumen (m³)</th><th>Gesamtgewicht (kg)</th><th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      </div>
+      <button class="btn" id="btnAddArtikel">+ Artikel hinzufügen</button>
+    </div>
+
+    <div class="card">
+      <h2>Container-Auslastung</h2>
+      <div id="auslastungWarn" class="warn-box" style="display:none;"></div>
+      <div class="util-row">
+        <label>Volumen</label>
+        <div class="util-bar"><div class="util-fill" id="volFill"></div></div>
+        <div class="util-text" id="volText">–</div>
+      </div>
+      <div class="util-row">
+        <label>Zuladung (Gewicht)</label>
+        <div class="util-bar"><div class="util-fill" id="weightFill"></div></div>
+        <div class="util-text" id="weightText">–</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Ergebnis je Artikel</h2>
+      <div id="k_warning" class="warn-box" style="display:none;"></div>
+      <div style="overflow-x:auto;">
+      <table id="resultTable">
+        <thead>
+          <tr>
+            <th>Artikel</th><th>Menge</th><th>Warenwert (EUR)</th>
+            <th>Anteil Seefracht</th><th>Anteil Nachlauf</th><th>Anteil Nebenkosten</th>
+            <th>Anteil Sonstiges</th><th>Zoll</th><th>Versicherung</th><th>IC-China</th>
+            <th>Gesamt (EUR)</th><th>EUR / Stk</th>
+            <th>Zentrallager (EUR)</th><th class="darkgreen-head">EUR / Stk inkl. Zentrallager</th>
+          </tr>
+        </thead>
+        <tbody id="resultTableBody"></tbody>
+        <tfoot id="resultTableFoot"></tfoot>
+      </table>
+      </div>
+      <p class="note" style="margin-top:14px;">
+        Verteilschlüssel: Seefracht, Nachlauf, Nebenkosten und sonstige Container-Kosten werden je Artikel
+        proportional zu dessen Anteil am genutzten Container-Volumen umgelegt. Zollwert je Artikel = Warenwert
+        + anteilige Seefracht bis zur EU-Grenze; Nachlauf, Nebenkosten und sonstige Kosten fließen nicht in
+        den Zollwert ein. Der Zollsatz wird einheitlich für den gesamten Container angewendet (Standard 2 %,
+        in den Container-Einstellungen änderbar). Die
+        Zentrallager-Kosten (Anteil von "Gesamt (EUR)", also den bereits inkl. Fracht, Zoll, Versicherung
+        und IC-China-Gebühr ermittelten Kosten je Artikel) fließen nicht in "Gesamt (EUR)" selbst ein,
+        sondern werden als Aufschlag auf den EUR/Stk-Preis ausgewiesen.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- CLOUD-SYNC -->
+  <div class="tab" id="tab-cloudsync">
+    <div class="card">
+      <h2>Cloud-Sync (geräteübergreifend arbeiten)</h2>
+      <div class="info-box">
+        Standardmäßig speichert der Kalkulator alle Eingaben nur lokal im Browser (localStorage) – das gilt
+        pro Gerät/Browser einzeln. Um dieselben Daten automatisch auf all deinen Geräten zu haben, verbindest
+        du den Kalkulator hier einmalig mit einer kostenlosen Firebase-Cloud-Datenbank. Danach werden alle
+        Änderungen automatisch synchronisiert.
+      </div>
+
+      <label>Firebase-Konfiguration (JSON, aus der Firebase-Konsole kopieren)</label>
+      <textarea id="cfg_firebase" rows="6" style="font-family:monospace; font-size:12px;" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...", ...}'></textarea>
+      <label>Sync-Code (frei wählbares Passwort – auf jedem Gerät identisch eingeben, keine Schrägstriche)</label>
+      <input type="text" id="cfg_synccode" placeholder="z. B. mein-geheimer-code-2026">
+      <button class="btn" id="btnConnectCloud">Verbinden &amp; synchronisieren</button>
+      <button class="btn secondary" id="btnDisconnectCloud">Trennen (nur lokal speichern)</button>
+      <p class="note" id="cloudStatus" style="margin-top:12px;">Status: nicht verbunden – Eingaben werden nur lokal gespeichert.</p>
+
+      <h3>Einmalige Einrichtung (ca. 5 Minuten)</h3>
+      <ol class="note" style="padding-left:18px; line-height:1.8;">
+        <li>Auf <strong>console.firebase.google.com</strong> mit einem Google-Konto anmelden und ein neues, kostenloses Projekt anlegen.</li>
+        <li>Im Projektmenü links <strong>"Firestore Database"</strong> öffnen → "Datenbank erstellen" → Modus <strong>"Testmodus"</strong> wählen (reicht zum Start) → Standort auswählen (z. B. europe-west) → erstellen.</li>
+        <li>Im Reiter <strong>"Regeln"</strong> der Firestore Database den Text unten einfügen und veröffentlichen.</li>
+        <li>Im Projekt-Overview (Zahnrad oben links → "Projekteinstellungen") ganz unten bei "Meine Apps" über das Symbol <strong>&lt;/&gt;</strong> eine neue Web-App hinzufügen (Name frei wählbar). Firebase zeigt dann einen Codeblock <code>firebaseConfig = {...}</code> an – diesen kompletten JSON-Teil kopieren und oben in das Feld "Firebase-Konfiguration" einfügen.</li>
+        <li>Einen eigenen, langen Sync-Code frei erfinden (wirkt wie ein Passwort) und oben eintragen.</li>
+        <li>"Verbinden &amp; synchronisieren" klicken. Auf jedem weiteren Gerät genau dieselbe Firebase-Konfiguration und denselben Sync-Code eintragen – die Daten gleichen sich dann automatisch ab.</li>
+      </ol>
+
+      <label>Firestore-Sicherheitsregeln (Schritt 3 oben)</label>
+      <pre class="code-block">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /kalkulator_sync/{syncCode} {
+      allow read, write: if true;
+    }
+  }
+}</pre>
+
+      <div class="warn-box">
+        Wichtig: Der Sync-Code ist kein echtes Passwort mit Zugriffskontrolle, sondern nur ein einfacher
+        Schutz durch Unauffindbarkeit. Wähle ihn lang und nicht erratbar und gib ihn nicht weiter. Für sensible
+        Daten wäre eine echte Nutzeranmeldung (Firebase Authentication) nötig – bei Bedarf kann das ergänzt werden.
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>Konditionen Interfracht/Rhenus Logistics AG (IHG_Raiffeisen_Salzburg_2026.xlsx) · Version 2: Mischcontainer mit mehreren Artikeln · Eingaben werden lokal gespeichert (localStorage), optional zusätzlich per Cloud-Sync geräteübergreifend</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+// ---------------------------------------------------------------
+// State
+// ---------------------------------------------------------------
+const STORAGE_KEY = "fobCalcState_mischcontainer_v1";
+
+const defaultState = {
+  kurs: 1.1476,
+  kursDatum: "2026-07-30",
+  kursQuelle: "EZB Referenzkurs (manuell eingetragen)",
+
+  containerTypes: [
+    { typ: "20' DC", laenge: 5.90, breite: 2.35, hoehe: 2.39, zuladung: 28180, bemerkung: "Standard-Trockencontainer" },
+    { typ: "40' DC", laenge: 12.03, breite: 2.35, hoehe: 2.39, zuladung: 26580, bemerkung: "Standard-Trockencontainer" },
+    { typ: "40' HC", laenge: 12.03, breite: 2.35, hoehe: 2.69, zuladung: 26512, bemerkung: "Erhöhter Container" }
+  ],
+
+  // Blatt "2. Oceanfreight FCL" – all-in USD, Ziel: Northports (Antwerpen/Rotterdam/Bremerhaven/Hamburg)
+  seefracht: [
+    { land:"China", hafen:"Ningbo", usd20:1450, usd40:2000, usd40hc:2000, transit:"41 Tage" },
+    { land:"China", hafen:"Qingdao", usd20:1450, usd40:2000, usd40hc:2000, transit:"42 Tage" },
+    { land:"China", hafen:"Shanghai", usd20:1450, usd40:2000, usd40hc:2000, transit:"41 Tage" },
+    { land:"China", hafen:"Yantian", usd20:1450, usd40:2000, usd40hc:2000, transit:"37 Tage" },
+    { land:"China", hafen:"Xiamen", usd20:1450, usd40:2000, usd40hc:2000, transit:"43 Tage" },
+    { land:"China", hafen:"Nansha", usd20:1450, usd40:2000, usd40hc:2000, transit:"45 Tage" },
+    { land:"China", hafen:"Dalian", usd20:1450, usd40:2000, usd40hc:2000, transit:"42 Tage" },
+    { land:"China", hafen:"Nanjing", usd20:1850, usd40:3090, usd40hc:3090, transit:"51 Tage" },
+    { land:"China", hafen:"Zhangjiagang", usd20:1860, usd40:2970, usd40hc:2970, transit:"48 Tage" },
+    { land:"Vietnam", hafen:"Danang", usd20:1880, usd40:2750, usd40hc:2750, transit:"45 Tage" },
+    { land:"Vietnam", hafen:"Haiphong", usd20:1790, usd40:2600, usd40hc:2600, transit:"42 Tage" },
+    { land:"Vietnam", hafen:"Hochiminh", usd20:1550, usd40:2200, usd40hc:2200, transit:"31 Tage" },
+    { land:"Vietnam", hafen:"Qui Nhon", usd20:1880, usd40:2750, usd40hc:2750, transit:"40 Tage" },
+    { land:"Mexico", hafen:"Veracruz", usd20:1230, usd40:2070, usd40hc:2070, transit:"29 Tage" },
+    { land:"Kolumbien", hafen:"Cartagena", usd20:1550, usd40:2070, usd40hc:2070, transit:"21 Tage" },
+    { land:"Kolumbien", hafen:"Buenaventura", usd20:1550, usd40:2070, usd40hc:2070, transit:"23 Tage" },
+    { land:"Argentinien", hafen:"Buenos Aires", usd20:1700, usd40:2140, usd40hc:2140, transit:"30 Tage" }
+  ],
+
+  // Blatt "4. Onforwarding FCL" – EUR, Bahn (Rail) / LKW (Truck)
+  nachlauf: [
+    { ziel:"AT- Bergheim", hafen:"Koper", rail20:1709, rail40:null, rail40hc:1945, truck20:null, truck40hc:null },
+    { ziel:"AT- Bergheim", hafen:"Rotterdam", rail20:1730, rail40:null, rail40hc:2034, truck20:null, truck40hc:null },
+    { ziel:"AT- Bergheim", hafen:"Hamburg/Bremerhaven", rail20:1272, rail40:1525, rail40hc:1604, truck20:null, truck40hc:null },
+    { ziel:"AT- Bergheim", hafen:"Wilhelmshaven", rail20:1227, rail40:1480, rail40hc:1560, truck20:null, truck40hc:null },
+    { ziel:"DE-77694 Kehl", hafen:"Bremerhaven", rail20:870, rail40:870, rail40hc:965, truck20:null, truck40hc:null },
+    { ziel:"DE-77694 Kehl", hafen:"Rotterdam", rail20:745, rail40:745, rail40hc:855, truck20:null, truck40hc:null },
+    { ziel:"DE-77694 Kehl", hafen:"Antwerpen", rail20:826, rail40:826, rail40hc:950, truck20:null, truck40hc:null },
+    { ziel:"DE-50668 Köln", hafen:"Hamburg", rail20:null, rail40:null, rail40hc:null, truck20:975, truck40hc:1140 },
+    { ziel:"DE-50668 Köln", hafen:"Bremerhaven", rail20:null, rail40:null, rail40hc:null, truck20:925, truck40hc:1067 },
+    { ziel:"DE-50668 Köln", hafen:"Rotterdam", rail20:null, rail40:null, rail40hc:null, truck20:null, truck40hc:null }
+  ],
+
+  // Blatt "7. Side Charges Countries_FCL"
+  nebenkosten: [
+    { name:"Zollabwicklung (Import Customs Clearance, inkl. 3 HS-Codes)", betrag:70, einheit:"pro Container", standard:true },
+    { name:"Verwiegung / VGM (Weighing)", betrag:50, einheit:"pro Container", standard:false },
+    { name:"Courier Expenses", betrag:25, einheit:"pauschal, nur Vietnam-Sendungen", standard:false },
+    { name:"Vet-Check Hamburg", betrag:241, einheit:"pauschal, nur lebensmittel-/veterinärpflichtige Ware", standard:false },
+    { name:"Vet-Check Rotterdam", betrag:775, einheit:"pauschal, nur lebensmittel-/veterinärpflichtige Ware", standard:false },
+    { name:"Zollbeschau (Customs Inspection)", betrag:0, einheit:"nach Aufwand (as per outlay) – Betrag bei Bedarf eintragen", standard:false }
+  ],
+
+  // Mischcontainer: mehrere Artikel
+  articles: [
+    { name:"Stuhl Modell XY", fob:12.50, qty:500, volPerUnit:0.09, weightPerUnit:4 },
+    { name:"Tisch Modell Z", fob:35.00, qty:100, volPerUnit:0.25, weightPerUnit:12 }
+  ],
+
+  containerSettings: {
+    land:"China", hafen:"Ningbo", groesse:"40' HC",
+    zielort:"AT- Bergheim", ankunftshafen:"Hamburg/Bremerhaven"
+  }
+};
+
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      return Object.assign(JSON.parse(JSON.stringify(defaultState)), parsed);
+    }
+  }catch(e){}
+  return JSON.parse(JSON.stringify(defaultState));
+}
+
+function saveState(pushCloud){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  if(pushCloud !== false) pushToCloud();
+}
+
+// ---------------------------------------------------------------
+// Cloud-Sync (Firebase Firestore) – optional, für geräteübergreifendes Arbeiten
+// ---------------------------------------------------------------
+const CLOUD_KEY = "fobCalc_cloudSync_v1";
+let cloudConfig = loadCloudConfig();
+let fbApp = null, fbDb = null, cloudUnsubscribe = null;
+let applyingRemoteUpdate = false;
+let cloudPushTimer = null;
+
+function loadCloudConfig(){
+  try{
+    const raw = localStorage.getItem(CLOUD_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return { configJson:"", syncCode:"", enabled:false };
+}
+
+function saveCloudConfig(){
+  try{ localStorage.setItem(CLOUD_KEY, JSON.stringify(cloudConfig)); }catch(e){}
+}
+
+function updateCloudStatus(msg, isError){
+  const el = document.getElementById("cloudStatus");
+  if(!el) return;
+  if(msg){
+    el.textContent = "Status: " + msg;
+    el.style.color = isError ? "#b91c1c" : "";
+    return;
+  }
+  el.style.color = "";
+  el.textContent = cloudConfig.enabled
+    ? "Status: verbunden (Sync-Code: " + cloudConfig.syncCode + ")"
+    : "Status: nicht verbunden – Eingaben werden nur lokal gespeichert.";
+}
+
+function initCloudUIValues(){
+  const fEl = document.getElementById("cfg_firebase");
+  const cEl = document.getElementById("cfg_synccode");
+  if(fEl) fEl.value = cloudConfig.configJson || "";
+  if(cEl) cEl.value = cloudConfig.syncCode || "";
+  updateCloudStatus();
+}
+
+async function connectCloud(){
+  const cfgText = document.getElementById("cfg_firebase").value.trim();
+  const syncCode = document.getElementById("cfg_synccode").value.trim();
+  if(!cfgText || !syncCode){
+    alert("Bitte Firebase-Konfiguration und Sync-Code eintragen.");
+    return;
+  }
+  let cfgObj;
+  try{
+    cfgObj = JSON.parse(cfgText);
+  }catch(e){
+    alert("Die Firebase-Konfiguration ist kein gültiges JSON. Bitte den Codeblock aus der Firebase-Konsole vollständig kopieren (inkl. geschweifter Klammern, mit Anführungszeichen um alle Schlüssel).");
+    return;
+  }
+  cloudConfig = { configJson: cfgText, syncCode: syncCode, enabled: true };
+  saveCloudConfig();
+  updateCloudStatus("wird verbunden ...");
+  try{
+    await startCloudSync(cfgObj);
+  }catch(e){
+    cloudConfig.enabled = false;
+    saveCloudConfig();
+    updateCloudStatus("Verbindung fehlgeschlagen: " + e.message, true);
+  }
+}
+
+function disconnectCloud(){
+  cloudConfig.enabled = false;
+  saveCloudConfig();
+  if(cloudUnsubscribe){ cloudUnsubscribe(); cloudUnsubscribe = null; }
+  updateCloudStatus();
+}
+
+async function startCloudSync(cfgObj){
+  if(typeof firebase === "undefined"){
+    throw new Error("Firebase-Bibliothek konnte nicht geladen werden (keine Internetverbindung?).");
+  }
+  if(!fbApp){
+    fbApp = firebase.initializeApp(cfgObj);
+    fbDb = firebase.firestore();
+  }
+  const docRef = fbDb.collection("kalkulator_sync").doc(cloudConfig.syncCode);
+
+  const snap = await docRef.get();
+  if(snap.exists && snap.data() && snap.data().state){
+    applyingRemoteUpdate = true;
+    state = Object.assign(JSON.parse(JSON.stringify(defaultState)), snap.data().state);
+    saveState(false);
+    renderAll();
+    applyingRemoteUpdate = false;
+  } else {
+    await docRef.set({ state: state, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+  }
+
+  if(cloudUnsubscribe) cloudUnsubscribe();
+  cloudUnsubscribe = docRef.onSnapshot(doc=>{
+    if(applyingRemoteUpdate) return;
+    if(!doc.exists) return;
+    const data = doc.data();
+    if(!data || !data.state) return;
+    applyingRemoteUpdate = true;
+    state = Object.assign(JSON.parse(JSON.stringify(defaultState)), data.state);
+    saveState(false);
+    renderAll();
+    applyingRemoteUpdate = false;
+  }, err=>{
+    updateCloudStatus("Sync-Fehler: " + err.message, true);
+  });
+
+  updateCloudStatus();
+}
+
+function pushToCloud(){
+  if(!cloudConfig.enabled || !fbDb || applyingRemoteUpdate) return;
+  clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(()=>{
+    const docRef = fbDb.collection("kalkulator_sync").doc(cloudConfig.syncCode);
+    docRef.set({ state: state, updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
+      .catch(err=>{ updateCloudStatus("Sync-Fehler: " + err.message, true); });
+  }, 800);
+}
+
+// ---------------------------------------------------------------
+// Tabs
+// ---------------------------------------------------------------
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("tab-"+btn.dataset.tab).classList.add("active");
+  });
+});
+
+// ---------------------------------------------------------------
+// Wechselkurs
+// ---------------------------------------------------------------
+document.getElementById("kurs").value = state.kurs;
+document.getElementById("kursDatum").value = state.kursDatum;
+document.getElementById("kursQuelle").value = state.kursQuelle;
+
+document.getElementById("btnSaveRate").addEventListener("click", ()=>{
+  state.kurs = parseFloat(document.getElementById("kurs").value) || state.kurs;
+  state.kursDatum = document.getElementById("kursDatum").value;
+  state.kursQuelle = document.getElementById("kursQuelle").value;
+  saveState();
+  calculate();
+  alert("Kurs gespeichert.");
+});
+
+document.getElementById("btnFetchRate").addEventListener("click", async ()=>{
+  const btn = document.getElementById("btnFetchRate");
+  btn.disabled = true;
+  btn.textContent = "Wird abgerufen ...";
+  try{
+    const res = await fetch("https://open.er-api.com/v6/latest/USD");
+    const data = await res.json();
+    if(data && data.result === "success" && data.rates && data.rates.EUR){
+      const eurPerUsd = data.rates.EUR;
+      const kurs = 1 / eurPerUsd;
+      document.getElementById("kurs").value = kurs.toFixed(4);
+      document.getElementById("kursDatum").value = new Date().toISOString().slice(0,10);
+      document.getElementById("kursQuelle").value = "open.er-api.com – automatisch abgerufen " + new Date().toLocaleString("de-DE");
+      state.kurs = kurs;
+      state.kursDatum = document.getElementById("kursDatum").value;
+      state.kursQuelle = document.getElementById("kursQuelle").value;
+      saveState();
+      calculate();
+    } else {
+      throw new Error("Unerwartete Antwort");
+    }
+  }catch(e){
+    alert("Automatischer Abruf fehlgeschlagen. Bitte Kurs manuell eintragen (z. B. von der EZB-Website).");
+  }finally{
+    btn.disabled = false;
+    btn.textContent = "Aktuellen Kurs online abrufen";
+  }
+});
+
+// ---------------------------------------------------------------
+// Containergrößen table
+// ---------------------------------------------------------------
+function renderContainerTable(){
+  const tbody = document.querySelector("#containerTable tbody");
+  tbody.innerHTML = "";
+  state.containerTypes.forEach((c, i)=>{
+    const vol = (c.laenge * c.breite * c.hoehe).toFixed(1);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="text" value="${c.typ}" data-i="${i}" data-f="typ"></td>
+      <td><input type="number" step="0.01" value="${c.laenge}" data-i="${i}" data-f="laenge" style="width:70px;"></td>
+      <td><input type="number" step="0.01" value="${c.breite}" data-i="${i}" data-f="breite" style="width:70px;"></td>
+      <td><input type="number" step="0.01" value="${c.hoehe}" data-i="${i}" data-f="hoehe" style="width:70px;"></td>
+      <td>${vol}</td>
+      <td><input type="number" step="1" value="${c.zuladung}" data-i="${i}" data-f="zuladung" style="width:90px;"></td>
+      <td><input type="text" value="${c.bemerkung}" data-i="${i}" data-f="bemerkung"></td>
+      <td class="row-actions"><button class="btn danger" data-del="${i}">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll("input").forEach(inp=>{
+    inp.addEventListener("change", ()=>{
+      const i = +inp.dataset.i, f = inp.dataset.f;
+      const val = inp.type === "number" ? parseFloat(inp.value) || 0 : inp.value;
+      state.containerTypes[i][f] = val;
+      saveState();
+      renderContainerTable();
+      populateKalkDropdowns();
+      calculate();
+    });
+  });
+  tbody.querySelectorAll("[data-del]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      state.containerTypes.splice(+b.dataset.del, 1);
+      saveState();
+      renderContainerTable();
+      populateKalkDropdowns();
+      calculate();
+    });
+  });
+}
+
+document.getElementById("btnAddContainer").addEventListener("click", ()=>{
+  state.containerTypes.push({ typ:"Neuer Typ", laenge:0, breite:0, hoehe:0, zuladung:0, bemerkung:"" });
+  saveState();
+  renderContainerTable();
+  populateKalkDropdowns();
+  calculate();
+});
+
+// ---------------------------------------------------------------
+// Seefracht table
+// ---------------------------------------------------------------
+function renderSeefrachtTable(){
+  const tbody = document.querySelector("#seefrachtTable tbody");
+  tbody.innerHTML = "";
+  let lastLand = null;
+  state.seefracht.forEach((r, i)=>{
+    if(r.land !== lastLand){
+      const gr = document.createElement("tr");
+      gr.className = "group-row";
+      gr.innerHTML = `<td colspan="7">${r.land}</td>`;
+      tbody.appendChild(gr);
+      lastLand = r.land;
+    }
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="text" value="${r.land}" data-i="${i}" data-f="land" style="width:110px;"></td>
+      <td><input type="text" value="${r.hafen}" data-i="${i}" data-f="hafen" style="width:120px;"></td>
+      <td><input type="number" step="1" value="${r.usd20}" data-i="${i}" data-f="usd20" style="width:75px;"></td>
+      <td><input type="number" step="1" value="${r.usd40}" data-i="${i}" data-f="usd40" style="width:75px;"></td>
+      <td><input type="number" step="1" value="${r.usd40hc}" data-i="${i}" data-f="usd40hc" style="width:75px;"></td>
+      <td><input type="text" value="${r.transit}" data-i="${i}" data-f="transit" style="width:80px;"></td>
+      <td class="row-actions"><button class="btn danger" data-del="${i}">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll("input").forEach(inp=>{
+    inp.addEventListener("change", ()=>{
+      const i = +inp.dataset.i, f = inp.dataset.f;
+      const val = inp.type === "number" ? (parseFloat(inp.value) || 0) : inp.value;
+      state.seefracht[i][f] = val;
+      saveState();
+      renderSeefrachtTable();
+      populateKalkDropdowns();
+      calculate();
+    });
+  });
+  tbody.querySelectorAll("[data-del]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      state.seefracht.splice(+b.dataset.del, 1);
+      saveState();
+      renderSeefrachtTable();
+      populateKalkDropdowns();
+      calculate();
+    });
+  });
+}
+
+document.getElementById("btnAddSeefracht").addEventListener("click", ()=>{
+  state.seefracht.push({ land:"Neues Land", hafen:"Neuer Hafen", usd20:0, usd40:0, usd40hc:0, transit:"" });
+  saveState();
+  renderSeefrachtTable();
+  populateKalkDropdowns();
+});
+
+// ---------------------------------------------------------------
+// Nachlauf table
+// ---------------------------------------------------------------
+function n(v){ return (v === null || v === undefined || v === "") ? "" : v; }
+function toNumOrNull(v){
+  if(v === "" || v === null || v === undefined) return null;
+  const f = parseFloat(v);
+  return isNaN(f) ? null : f;
+}
+
+function renderNachlaufTable(){
+  const tbody = document.querySelector("#nachlaufTable tbody");
+  tbody.innerHTML = "";
+  let lastZiel = null;
+  state.nachlauf.forEach((r, i)=>{
+    if(r.ziel !== lastZiel){
+      const gr = document.createElement("tr");
+      gr.className = "group-row";
+      gr.innerHTML = `<td colspan="8">${r.ziel}</td>`;
+      tbody.appendChild(gr);
+      lastZiel = r.ziel;
+    }
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="text" value="${r.ziel}" data-i="${i}" data-f="ziel" style="width:120px;"></td>
+      <td><input type="text" value="${r.hafen}" data-i="${i}" data-f="hafen" style="width:140px;"></td>
+      <td><input type="number" step="1" value="${n(r.rail20)}" data-i="${i}" data-f="rail20" style="width:75px;" placeholder="n/a"></td>
+      <td><input type="number" step="1" value="${n(r.rail40)}" data-i="${i}" data-f="rail40" style="width:75px;" placeholder="n/a"></td>
+      <td><input type="number" step="1" value="${n(r.rail40hc)}" data-i="${i}" data-f="rail40hc" style="width:75px;" placeholder="n/a"></td>
+      <td><input type="number" step="1" value="${n(r.truck20)}" data-i="${i}" data-f="truck20" style="width:75px;" placeholder="n/a"></td>
+      <td><input type="number" step="1" value="${n(r.truck40hc)}" data-i="${i}" data-f="truck40hc" style="width:75px;" placeholder="n/a"></td>
+      <td class="row-actions"><button class="btn danger" data-del="${i}">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll("input").forEach(inp=>{
+    inp.addEventListener("change", ()=>{
+      const i = +inp.dataset.i, f = inp.dataset.f;
+      const val = inp.type === "number" ? toNumOrNull(inp.value) : inp.value;
+      state.nachlauf[i][f] = val;
+      saveState();
+      renderNachlaufTable();
+      populateKalkDropdowns();
+      calculate();
+    });
+  });
+  tbody.querySelectorAll("[data-del]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      state.nachlauf.splice(+b.dataset.del, 1);
+      saveState();
+      renderNachlaufTable();
+      populateKalkDropdowns();
+      calculate();
+    });
+  });
+}
+
+document.getElementById("btnAddNachlauf").addEventListener("click", ()=>{
+  state.nachlauf.push({ ziel:"AT- Bergheim", hafen:"Neuer Hafen", rail20:null, rail40:null, rail40hc:null, truck20:null, truck40hc:null });
+  saveState();
+  renderNachlaufTable();
+  populateKalkDropdowns();
+});
+
+// ---------------------------------------------------------------
+// Nebenkosten
+// ---------------------------------------------------------------
+function renderNebenkosten(){
+  const wrap = document.getElementById("nebenkostenList");
+  wrap.innerHTML = "";
+  state.nebenkosten.forEach((c, i)=>{
+    const row = document.createElement("div");
+    row.className = "charge-row";
+    row.innerHTML = `
+      <div class="chk"><input type="checkbox" data-i="${i}" data-f="standard" ${c.standard ? "checked" : ""}></div>
+      <div class="name"><input type="text" value="${c.name}" data-i="${i}" data-f="name" style="background:#fff;"></div>
+      <div class="amount"><input type="number" step="0.01" value="${c.betrag}" data-i="${i}" data-f="betrag"></div>
+      <div class="unit"><input type="text" value="${c.einheit}" data-i="${i}" data-f="einheit" style="background:#fff; font-size:11.5px;"></div>
+      <button class="btn danger" data-del="${i}">✕</button>
+    `;
+    wrap.appendChild(row);
+  });
+  wrap.querySelectorAll("input").forEach(inp=>{
+    inp.addEventListener("change", ()=>{
+      const i = +inp.dataset.i, f = inp.dataset.f;
+      let val;
+      if(inp.type === "checkbox") val = inp.checked;
+      else if(inp.type === "number") val = parseFloat(inp.value) || 0;
+      else val = inp.value;
+      state.nebenkosten[i][f] = val;
+      saveState();
+      calculate();
+    });
+  });
+  wrap.querySelectorAll("[data-del]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      state.nebenkosten.splice(+b.dataset.del, 1);
+      saveState();
+      renderNebenkosten();
+      calculate();
+    });
+  });
+}
+
+document.getElementById("btnAddNebenkosten").addEventListener("click", ()=>{
+  state.nebenkosten.push({ name:"Neue Position", betrag:0, einheit:"pro Container", standard:false });
+  saveState();
+  renderNebenkosten();
+  calculate();
+});
+
+// ---------------------------------------------------------------
+// Artikel-Tabelle (Mischcontainer)
+// ---------------------------------------------------------------
+function renderArtikelTable(){
+  const tbody = document.querySelector("#artikelTable tbody");
+  tbody.innerHTML = "";
+  state.articles.forEach((a, i)=>{
+    const gesamtVol = ((a.qty||0) * (a.volPerUnit||0)).toFixed(3);
+    const gesamtGew = ((a.qty||0) * (a.weightPerUnit||0)).toFixed(1);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="text" value="${a.name}" data-i="${i}" data-f="name" style="width:130px;"></td>
+      <td><input type="number" step="0.01" value="${a.fob}" data-i="${i}" data-f="fob" style="width:85px;"></td>
+      <td><input type="number" step="1" value="${a.qty}" data-i="${i}" data-f="qty" style="width:75px;"></td>
+      <td><input type="number" step="0.001" value="${a.volPerUnit}" data-i="${i}" data-f="volPerUnit" style="width:85px;"></td>
+      <td><input type="number" step="0.01" value="${a.weightPerUnit}" data-i="${i}" data-f="weightPerUnit" style="width:80px;"></td>
+      <td>${gesamtVol}</td>
+      <td>${gesamtGew}</td>
+      <td class="row-actions"><button class="btn danger" data-del="${i}">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll("input").forEach(inp=>{
+    inp.addEventListener("change", ()=>{
+      const i = +inp.dataset.i, f = inp.dataset.f;
+      const val = inp.type === "number" ? (parseFloat(inp.value) || 0) : inp.value;
+      state.articles[i][f] = val;
+      saveState();
+      renderArtikelTable();
+      calculate();
+    });
+  });
+  tbody.querySelectorAll("[data-del]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      state.articles.splice(+b.dataset.del, 1);
+      saveState();
+      renderArtikelTable();
+      calculate();
+    });
+  });
+}
+
+document.getElementById("btnAddArtikel").addEventListener("click", ()=>{
+  state.articles.push({ name:"Neuer Artikel", fob:0, qty:0, volPerUnit:0, weightPerUnit:0 });
+  saveState();
+  renderArtikelTable();
+  calculate();
+});
+
+// ---------------------------------------------------------------
+// Kalkulation – Dropdowns
+// ---------------------------------------------------------------
+function populateKalkDropdowns(){
+  const landSel = document.getElementById("k_land");
+  const hafenSel = document.getElementById("k_hafen");
+  const groesseSel = document.getElementById("k_groesse");
+  const zielortSel = document.getElementById("k_zielort");
+  const ankunftSel = document.getElementById("k_ankunftshafen");
+
+  const prevLand = landSel.value, prevHafen = hafenSel.value, prevGroesse = groesseSel.value;
+  const prevZielort = zielortSel.value, prevAnkunft = ankunftSel.value;
+
+  const uniqueLands = [...new Set(state.seefracht.map(r=>r.land))];
+  landSel.innerHTML = uniqueLands.map(l=>`<option value="${l}">${l}</option>`).join("");
+  if(uniqueLands.includes(prevLand)) landSel.value = prevLand;
+
+  updateHafenDropdown();
+  if([...hafenSel.options].some(o=>o.value===prevHafen)) hafenSel.value = prevHafen;
+
+  const sizeOptions = state.containerTypes.map(c=>c.typ);
+  groesseSel.innerHTML = sizeOptions.map(s=>`<option value="${s}">${s}</option>`).join("");
+  if(sizeOptions.includes(prevGroesse)) groesseSel.value = prevGroesse;
+
+  const uniqueZiele = [...new Set(state.nachlauf.map(r=>r.ziel))];
+  zielortSel.innerHTML = uniqueZiele.map(z=>`<option value="${z}">${z}</option>`).join("");
+  if(uniqueZiele.includes(prevZielort)) zielortSel.value = prevZielort;
+
+  updateAnkunftDropdown();
+  if([...ankunftSel.options].some(o=>o.value===prevAnkunft)) ankunftSel.value = prevAnkunft;
+}
+
+function updateHafenDropdown(){
+  const land = document.getElementById("k_land").value;
+  const hafenSel = document.getElementById("k_hafen");
+  const haefen = state.seefracht.filter(r=>r.land === land).map(r=>r.hafen);
+  hafenSel.innerHTML = haefen.map(h=>`<option value="${h}">${h}</option>`).join("");
+}
+
+function updateAnkunftDropdown(){
+  const ziel = document.getElementById("k_zielort").value;
+  const ankunftSel = document.getElementById("k_ankunftshafen");
+  const haefen = state.nachlauf.filter(r=>r.ziel === ziel).map(r=>r.hafen);
+  ankunftSel.innerHTML = haefen.map(h=>`<option value="${h}">${h}</option>`).join("");
+}
+
+document.getElementById("k_land").addEventListener("change", ()=>{ updateHafenDropdown(); calculate(); });
+document.getElementById("k_zielort").addEventListener("change", ()=>{ updateAnkunftDropdown(); calculate(); });
+
+function fmtEUR(n){ return n.toLocaleString("de-DE", {minimumFractionDigits:2, maximumFractionDigits:2}) + " €"; }
+function fmtEUR4(n){ return n.toLocaleString("de-DE", {minimumFractionDigits:4, maximumFractionDigits:4}) + " €"; }
+function fmtUSD(n){ return n.toLocaleString("de-DE", {minimumFractionDigits:2, maximumFractionDigits:2}) + " $"; }
+
+function seefrachtForSize(row, groesse){
+  if(!row) return null;
+  if(groesse.includes("20")) return row.usd20;
+  if(groesse.includes("HC")) return row.usd40hc;
+  if(groesse.includes("40")) return row.usd40;
+  return null;
+}
+
+function nachlaufForSize(row, groesse){
+  if(!row) return { wert:null, art:null };
+  let rail, truck;
+  if(groesse.includes("20")){ rail = row.rail20; truck = row.truck20; }
+  else if(groesse.includes("HC")){ rail = row.rail40hc; truck = row.truck40hc; }
+  else { rail = row.rail40; truck = null; } // kein Truck-Tarif fuer reines 40'DC hinterlegt
+
+  if(rail !== null && rail !== undefined) return { wert: rail, art: "Bahn" };
+  if(truck !== null && truck !== undefined) return { wert: truck, art: "LKW" };
+  return { wert:null, art:null };
+}
+
+function setUtilBar(fillEl, textEl, used, max, unitLabel){
+  if(!max || max <= 0){
+    fillEl.style.width = "0%";
+    fillEl.className = "util-fill";
+    textEl.textContent = "keine Kapazitätsangabe";
+    return;
+  }
+  const pct = (used / max) * 100;
+  const pctDisplay = Math.min(pct, 999);
+  fillEl.style.width = Math.min(pct, 100) + "%";
+  fillEl.className = "util-fill" + (pct > 100 ? " over" : (pct > 90 ? " warn" : ""));
+  textEl.textContent = used.toLocaleString("de-DE", {maximumFractionDigits:2}) + " / " +
+                        max.toLocaleString("de-DE", {maximumFractionDigits:2}) + " " + unitLabel +
+                        "  (" + pctDisplay.toFixed(1) + " %)";
+}
+
+function calculate(){
+  const land = document.getElementById("k_land").value;
+  const hafen = document.getElementById("k_hafen").value;
+  const groesse = document.getElementById("k_groesse").value;
+  const zielort = document.getElementById("k_zielort").value;
+  const ankunftshafen = document.getElementById("k_ankunftshafen").value;
+  const zollsatz = (parseFloat(document.getElementById("k_zoll").value) || 0) / 100;
+  const versSatz = (parseFloat(document.getElementById("k_versicherung").value) || 0) / 100;
+  const icChinaSatz = (parseFloat(document.getElementById("k_icchina").value) || 0) / 100;
+  const zentrallagerSatz = (parseFloat(document.getElementById("k_zentrallager").value) || 0) / 100;
+  const sonstigeContainer = parseFloat(document.getElementById("k_sonstige").value) || 0;
+  const kurs = state.kurs;
+
+  const containerRow = state.containerTypes.find(c=>c.typ === groesse);
+  const containerVolume = containerRow ? (containerRow.laenge * containerRow.breite * containerRow.hoehe) : 0;
+  const containerMaxWeight = containerRow ? containerRow.zuladung : 0;
+
+  const seefrachtRow = state.seefracht.find(r=>r.land === land && r.hafen === hafen);
+  const nachlaufRow = state.nachlauf.find(r=>r.ziel === zielort && r.hafen === ankunftshafen);
+  const seefrachtUSD = seefrachtForSize(seefrachtRow, groesse);
+  const nl = nachlaufForSize(nachlaufRow, groesse);
+  const seefracht = seefrachtUSD || 0;
+  const nachlauf = nl.wert || 0;
+  const seefrachtEUR = kurs ? seefracht / kurs : 0;
+
+  let nebenkostenSumme = 0;
+  state.nebenkosten.forEach(c=>{ if(c.standard) nebenkostenSumme += (parseFloat(c.betrag) || 0); });
+
+  // Auslastung berechnen
+  let totalVol = 0, totalWeight = 0;
+  state.articles.forEach(a=>{
+    totalVol += (a.qty||0) * (a.volPerUnit||0);
+    totalWeight += (a.qty||0) * (a.weightPerUnit||0);
+  });
+
+  setUtilBar(document.getElementById("volFill"), document.getElementById("volText"), totalVol, containerVolume, "m³");
+  setUtilBar(document.getElementById("weightFill"), document.getElementById("weightText"), totalWeight, containerMaxWeight, "kg");
+
+  // Warnungen sammeln
+  const warningEl = document.getElementById("k_warning");
+  const auslastungWarnEl = document.getElementById("auslastungWarn");
+  let warnings = [];
+  let auslastungWarnings = [];
+
+  if(seefrachtUSD === null || seefrachtUSD === undefined){
+    warnings.push("Keine Seefracht-Kondition für " + hafen + " / " + groesse + " hinterlegt.");
+  }
+  if(nl.wert === null){
+    warnings.push("Kein Nachlauf-Tarif für " + ankunftshafen + " → " + zielort + " / " + groesse + " hinterlegt (n/a). Bitte anderen Ankunftshafen wählen oder Konditionen ergänzen.");
+  }
+  if(containerVolume > 0 && totalVol > containerVolume){
+    auslastungWarnings.push("Containervolumen überschritten: " + (totalVol - containerVolume).toLocaleString("de-DE", {maximumFractionDigits:2}) + " m³ zu viel für " + groesse + " (Kapazität " + containerVolume.toFixed(1) + " m³). Bitte Menge reduzieren, größeren Container wählen oder auf einen 2. Container aufteilen.");
+  }
+  if(containerMaxWeight > 0 && totalWeight > containerMaxWeight){
+    auslastungWarnings.push("Max. Zuladung überschritten: " + (totalWeight - containerMaxWeight).toLocaleString("de-DE", {maximumFractionDigits:1}) + " kg zu viel für " + groesse + " (max. " + containerMaxWeight.toLocaleString("de-DE") + " kg).");
+  }
+
+  if(warnings.length){ warningEl.style.display = "block"; warningEl.textContent = warnings.join(" "); }
+  else { warningEl.style.display = "none"; }
+
+  if(auslastungWarnings.length){ auslastungWarnEl.style.display = "block"; auslastungWarnEl.textContent = auslastungWarnings.join(" "); }
+  else { auslastungWarnEl.style.display = "none"; }
+
+  // Ergebnistabelle je Artikel
+  const body = document.getElementById("resultTableBody");
+  const foot = document.getElementById("resultTableFoot");
+  body.innerHTML = "";
+  foot.innerHTML = "";
+
+  const sums = { warenwert:0, seefracht:0, nachlauf:0, nebenkosten:0, sonstige:0, zoll:0, versicherung:0, icchina:0, gesamt:0, menge:0, zentrallager:0 };
+
+  if(totalVol > 0 && state.articles.length){
+    state.articles.forEach(a=>{
+      const share = ((a.qty||0) * (a.volPerUnit||0)) / totalVol;
+      const warenwertUSD = (a.fob||0) * (a.qty||0);
+      const warenwertEUR = kurs ? warenwertUSD / kurs : 0;
+      const anteilSeefracht = seefrachtEUR * share;
+      const anteilNachlauf = nachlauf * share;
+      const anteilNebenkosten = nebenkostenSumme * share;
+      const anteilSonstige = sonstigeContainer * share;
+      const zollwert = warenwertEUR + anteilSeefracht;
+      const zoll = zollwert * zollsatz;
+      const versicherung = warenwertEUR * versSatz;
+      const icchina = warenwertEUR * icChinaSatz;
+      const gesamt = warenwertEUR + anteilSeefracht + anteilNachlauf + anteilNebenkosten + anteilSonstige + zoll + versicherung + icchina;
+      const proStk = a.qty ? gesamt / a.qty : 0;
+      const zentrallagerEUR = gesamt * zentrallagerSatz;
+      const zentrallagerProStk = a.qty ? zentrallagerEUR / a.qty : 0;
+      const proStkInklZL = proStk + zentrallagerProStk;
+
+      sums.warenwert += warenwertEUR;
+      sums.seefracht += anteilSeefracht;
+      sums.nachlauf += anteilNachlauf;
+      sums.nebenkosten += anteilNebenkosten;
+      sums.sonstige += anteilSonstige;
+      sums.zoll += zoll;
+      sums.versicherung += versicherung;
+      sums.icchina += icchina;
+      sums.gesamt += gesamt;
+      sums.menge += (a.qty || 0);
+      sums.zentrallager += zentrallagerEUR;
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${a.name}</td>
+        <td>${(a.qty||0).toLocaleString("de-DE")}</td>
+        <td>${fmtEUR(warenwertEUR)}</td>
+        <td>${fmtEUR(anteilSeefracht)}</td>
+        <td>${fmtEUR(anteilNachlauf)}</td>
+        <td>${fmtEUR(anteilNebenkosten)}</td>
+        <td>${fmtEUR(anteilSonstige)}</td>
+        <td>${fmtEUR(zoll)}</td>
+        <td>${fmtEUR(versicherung)}</td>
+        <td>${fmtEUR(icchina)}</td>
+        <td><strong>${fmtEUR(gesamt)}</strong></td>
+        <td><strong>${fmtEUR4(proStk)}</strong></td>
+        <td>${fmtEUR(zentrallagerEUR)}</td>
+        <td><span class="darkgreen-cell">${fmtEUR4(proStkInklZL)}</span></td>
+      `;
+      body.appendChild(tr);
+    });
+
+    const gesamtProStkInklZL = sums.menge ? (sums.gesamt + sums.zentrallager) / sums.menge : 0;
+    const trFoot = document.createElement("tr");
+    trFoot.className = "total-row";
+    trFoot.innerHTML = `
+      <td>Gesamt Container</td>
+      <td>${sums.menge.toLocaleString("de-DE")}</td>
+      <td>${fmtEUR(sums.warenwert)}</td>
+      <td>${fmtEUR(sums.seefracht)}</td>
+      <td>${fmtEUR(sums.nachlauf)}</td>
+      <td>${fmtEUR(sums.nebenkosten)}</td>
+      <td>${fmtEUR(sums.sonstige)}</td>
+      <td>${fmtEUR(sums.zoll)}</td>
+      <td>${fmtEUR(sums.versicherung)}</td>
+      <td>${fmtEUR(sums.icchina)}</td>
+      <td>${fmtEUR(sums.gesamt)}</td>
+      <td>–</td>
+      <td>${fmtEUR(sums.zentrallager)}</td>
+      <td><span class="darkgreen-cell">Ø ${fmtEUR4(gesamtProStkInklZL)}</span></td>
+    `;
+    foot.appendChild(trFoot);
+  } else {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="14" style="text-align:center; color:var(--muted); padding:14px;">Bitte mindestens einen Artikel mit Menge &gt; 0 und Volumen/Stück &gt; 0 hinzufügen.</td>`;
+    body.appendChild(tr);
+  }
+
+  // Einstellungen persistieren
+  state.containerSettings = { land, hafen, groesse, zielort, ankunftshafen };
+  state.kalkGlobals = { zollsatz: zollsatz*100, versSatz: versSatz*100, icChinaSatz: icChinaSatz*100, zentrallagerSatz: zentrallagerSatz*100, sonstige: sonstigeContainer };
+  saveState();
+}
+
+["k_hafen","k_groesse","k_ankunftshafen","k_zoll","k_versicherung","k_icchina","k_zentrallager","k_sonstige"].forEach(id=>{
+  document.getElementById(id).addEventListener("input", calculate);
+  document.getElementById(id).addEventListener("change", calculate);
+});
+
+// ---------------------------------------------------------------
+// Init
+// ---------------------------------------------------------------
+function restoreKalkGlobals(){
+  if(state.kalkGlobals){
+    const kg = state.kalkGlobals;
+    document.getElementById("k_zoll").value = kg.zollsatz ?? document.getElementById("k_zoll").value;
+    document.getElementById("k_versicherung").value = kg.versSatz ?? document.getElementById("k_versicherung").value;
+    document.getElementById("k_icchina").value = kg.icChinaSatz ?? document.getElementById("k_icchina").value;
+    document.getElementById("k_zentrallager").value = kg.zentrallagerSatz ?? document.getElementById("k_zentrallager").value;
+    document.getElementById("k_sonstige").value = kg.sonstige ?? document.getElementById("k_sonstige").value;
+  }
+}
+
+function applyContainerSettingsToDropdowns(){
+  if(!state.containerSettings) return;
+  const cs = state.containerSettings;
+  const landSel = document.getElementById("k_land");
+  if(cs.land && [...landSel.options].some(o=>o.value===cs.land)){
+    landSel.value = cs.land;
+    updateHafenDropdown();
+  }
+  const hafenSel = document.getElementById("k_hafen");
+  if(cs.hafen && [...hafenSel.options].some(o=>o.value===cs.hafen)) hafenSel.value = cs.hafen;
+
+  const groesseSel = document.getElementById("k_groesse");
+  if(cs.groesse && [...groesseSel.options].some(o=>o.value===cs.groesse)) groesseSel.value = cs.groesse;
+
+  const zielortSel = document.getElementById("k_zielort");
+  if(cs.zielort && [...zielortSel.options].some(o=>o.value===cs.zielort)){
+    zielortSel.value = cs.zielort;
+    updateAnkunftDropdown();
+  }
+  const ankunftSel = document.getElementById("k_ankunftshafen");
+  if(cs.ankunftshafen && [...ankunftSel.options].some(o=>o.value===cs.ankunftshafen)) ankunftSel.value = cs.ankunftshafen;
+}
+
+// Rendert die komplette Oberfläche neu, z.B. nach Empfang eines Cloud-Updates
+function renderAll(){
+  document.getElementById("kurs").value = state.kurs;
+  document.getElementById("kursDatum").value = state.kursDatum;
+  document.getElementById("kursQuelle").value = state.kursQuelle;
+  renderContainerTable();
+  renderSeefrachtTable();
+  renderNachlaufTable();
+  renderNebenkosten();
+  renderArtikelTable();
+  populateKalkDropdowns();
+  restoreKalkGlobals();
+  applyContainerSettingsToDropdowns();
+  calculate();
+}
+
+document.getElementById("btnConnectCloud").addEventListener("click", connectCloud);
+document.getElementById("btnDisconnectCloud").addEventListener("click", disconnectCloud);
+
+renderContainerTable();
+renderSeefrachtTable();
+renderNachlaufTable();
+renderNebenkosten();
+renderArtikelTable();
+populateKalkDropdowns();
+restoreKalkGlobals();
+applyContainerSettingsToDropdowns();
+initCloudUIValues();
+
+calculate();
+
+if(cloudConfig.enabled && cloudConfig.configJson){
+  try{
+    const cfgObj = JSON.parse(cloudConfig.configJson);
+    updateCloudStatus("wird verbunden ...");
+    startCloudSync(cfgObj).catch(e=>{
+      updateCloudStatus("Verbindung fehlgeschlagen: " + e.message, true);
+    });
+  }catch(e){
+    updateCloudStatus("Gespeicherte Firebase-Konfiguration ist ungültig.", true);
+  }
+}
+</script>
+
+</body>
+</html>
